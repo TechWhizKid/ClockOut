@@ -21,3 +21,28 @@ Install dependencies using **pip:**
 ```
 
 ---
+
+## Direct download
+
+| [Source Code](https://github.com/TechWhizKid/IntergalacticWar/archive/refs/heads/main.zip) |
+|---|
+
+<div align="center">
+
+## Screenshots
+
+<img src="https://github.com/TechWhizKid/ClockOut/blob/main/Preview/ClockOut-Dark.png?raw=true" alt="game_menu" width="300">
+
+<img src="https://github.com/TechWhizKid/ClockOut/blob/main/Preview/ClockOut-Light.png?raw=true" alt="app_image" width="300">
+
+<br>
+
+<img src="https://github.com/TechWhizKid/ClockOut/blob/main/Preview/ClockOut-Mismatch.png?raw=true" alt="app_image" width="250">
+
+<br>
+
+<img src="https://github.com/TechWhizKid/ClockOut/blob/main/Preview/ClockOut-InTray.png?raw=true" alt="app_image" width="250">
+
+---
+
+</div>
