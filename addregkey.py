@@ -12,15 +12,19 @@ def is_admin():
 
 # Create registry key
 def create_registry_key(file_name):
-    # Get the application path using the initial script path
-    app_path = os.path.abspath(sys.argv[0])
+    # Get the application path using the current script path
+    script_path = os.path.abspath(sys.argv[0])
+    script_directory = os.path.dirname(script_path)
+
+    # Form the file path for the registry key using the script directory and the passed file name
+    key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
+    file_path = os.path.join(script_directory, file_name)
 
     # Open the desired registry key for auto-start programs
-    key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
     key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_SET_VALUE)
 
-    # Set the registry key with the given file name and current script path
-    winreg.SetValueEx(key, file_name, 0, winreg.REG_SZ, app_path)
+    # Set the registry key with the file path
+    winreg.SetValueEx(key, file_name, 0, winreg.REG_SZ, file_path)
     print(f"The registry key for '{file_name}' was added successfully.")
 
     # Close the registry key
