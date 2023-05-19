@@ -371,7 +371,7 @@ if not os.path.exists("appicon.ico"):
     print("Trying to downloading 'appicon.ico'.")
     try:
         # Download the file from the provided URL
-        url = "https://raw.githubusercontent.com/TomSchimansky/CustomTkinter/master/customtkinter/assets/icons/CustomTkinter_icon_Windows.ico"
+        url = "https://raw.githubusercontent.com/TechWhizKid/ClockOut/main/appicon.ico"
         urllib.request.urlretrieve(url, "appicon.ico")
         print("'appicon.ico' downloaded successfully.")
     except:
