@@ -39,9 +39,13 @@ Install dependencies using **pip:**
 
 <img src="https://github.com/TechWhizKid/ClockOut/blob/main/Preview/ClockOut-Mismatch.png?raw=true" alt="app_image" width="250">
 
+<img src="https://github.com/TechWhizKid/ClockOut/blob/main/Preview/ClockOut-Mismatch-Light.png?raw=true" alt="app_image" width="250">
+
 <br>
 
 <img src="https://github.com/TechWhizKid/ClockOut/blob/main/Preview/ClockOut-InTray.png?raw=true" alt="app_image" width="250">
+
+<img src="https://github.com/TechWhizKid/ClockOut/blob/main/Preview/ClockOut-InTray-Light.png?raw=true" alt="app_image" width="250">
 
 ---
 
