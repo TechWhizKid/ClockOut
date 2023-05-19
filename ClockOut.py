@@ -40,13 +40,13 @@ def check_registry_key():
 # Call the check_registry_key() function to check if the key exists
 if os.path.isfile("addregkey.exe"):
     if not check_registry_key():
-        print("The registry key does not exist.")
+        print("The registry key does not exist, trying to add registry key...")
         command = f"addregkey.exe {os.path.basename(__file__)}"
         os.popen(command)
     else:
         print("The registry key already exists.")
 else:
-    print("'addregkey.exe' not found.")
+    print("'addregkey.exe' not found, trying to add registry key failed.")
 
 # Format the internet time
 def format_internet_time(internet_time):
@@ -60,26 +60,37 @@ def show_time_mismatch_popup(internet_time):
     popup.geometry("450x200")
     popup.attributes('-topmost', True)
 
-    label1 = customtkinter.CTkLabel(master=popup, text="The current time on your device doesn't match the time from internet",
-        font=customtkinter.CTkFont(size=14))
+    label1 = customtkinter.CTkLabel(master=popup, text="The current time on your device doesn't match the time from the internet",
+                                   font=customtkinter.CTkFont(size=14))
     label1.pack(pady=(10, 2))
 
     label2_text = "Internet Time: {}".format(format_internet_time(internet_time))
-    label2 = customtkinter.CTkLabel(master=popup, text=label2_text, font=customtkinter.CTkFont(size=14), wraplength=300)
+    label2 = customtkinter.CTkLabel(master=popup, text=label2_text, font=customtkinter.CTkFont(size=14), wraplength=400)
     label2.pack(pady=2)
 
     label3_text = "Please note that the displayed internet time might also be incorrect for your region."
-    label3 = customtkinter.CTkLabel(master=popup, text=label3_text, font=customtkinter.CTkFont(size=13), wraplength=300)
+    label3 = customtkinter.CTkLabel(master=popup, text=label3_text, font=customtkinter.CTkFont(size=13), wraplength=400)
     label3.pack(pady=(10, 15))
 
     checkbox_var = customtkinter.IntVar()
     checkbox = customtkinter.CTkCheckBox(master=popup, text="Don't show this message again", variable=checkbox_var,
-        font=customtkinter.CTkFont(size=12), width=4, height=3, checkbox_width=16, checkbox_height=16, border_width=2)
+                                         font=customtkinter.CTkFont(size=12), width=4, height=3,
+                                         checkbox_width=16, checkbox_height=16, border_width=2)
     checkbox.pack(pady=(5, 0))
 
     def save_settings_and_close():
-        save_settings(show_popup=False)
-        popup.destroy()
+        config = configparser.ConfigParser()
+        config.read(config_file)
+        if 'POPUP_SETTINGS' not in config:
+            config['POPUP_SETTINGS'] = {}
+        if checkbox_var.get() == 1:
+            config['POPUP_SETTINGS']['ShowPopup'] = 'False'
+
+        # Save the modified settings to the config file
+        with open(config_file, 'w') as configfile:
+            config.write(configfile)
+        if popup.winfo_exists():
+            popup.destroy()
 
     ok_button = customtkinter.CTkButton(master=popup, text="OK", command=save_settings_and_close)
     ok_button.pack(pady=(5, 10))
@@ -166,7 +177,7 @@ def hibernate_device():
         # Wait for 30 seconds
         time.sleep(30)
         
-        # Execute the shutdown command to hibernate the device
+        # Execute the "shutdown /h" command to hibernate the device
         subprocess.Popen(['shutdown', '/h'])
     
     # Start the delay function in a separate thread
@@ -182,6 +193,7 @@ def check_hibernate_state():
 def hibernate_or_shutdown():
     has_hibernate = check_hibernate_state()
     print(f"Computer has hibernate option: {has_hibernate}")
+    # hibernate if possible else shutdown
     if has_hibernate:
         hibernate_device()
     else:
@@ -215,6 +227,7 @@ def is_within_time_range(start_hour, start_minute, start_am_pm, end_hour, end_mi
     start_time = datetime.time(start_hour_val, start_minute_val)
     end_time = datetime.time(end_hour_val, end_minute_val)
     print(start_time, current_time, end_time)
+
     # Check if the current time is within the specified range
     if start_time <= current_time <= end_time:
         return True
@@ -259,32 +272,23 @@ def validate_minutes():
         end_minute_var.set("59")
 
 # Handle the "Save" button click event
-def save_settings(show_popup=True):
+def save_settings():
     validate_minutes()
     config = configparser.ConfigParser()
     config.read(config_file)
 
-    # Check if the 'SETTINGS' section exists
-    if 'SETTINGS' not in config:
-        config['SETTINGS'] = {}
-
-    # Check if 'ShowPopup' exists and its value is 'False'
-    if show_popup is False:
-        config['SETTINGS']['ShowPopup'] = 'False'
-    elif 'ShowPopup' in config['SETTINGS']:
-        if config['SETTINGS']['ShowPopup'] == 'False':
-            config['SETTINGS']['ShowPopup'] = 'False'
-        else:
-            del config['SETTINGS']['ShowPopup']
+    # Check if the 'GENERAL_SETTINGS' section exists
+    if 'GENERAL_SETTINGS' not in config:
+        config['GENERAL_SETTINGS'] = {}
 
     # Save the other settings
-    config['SETTINGS']['StartHour'] = start_hour_var.get()
-    config['SETTINGS']['StartMinute'] = start_minute_var.get()
-    config['SETTINGS']['StartAMPM'] = start_am_pm_var.get()
-    config['SETTINGS']['EndHour'] = end_hour_var.get()
-    config['SETTINGS']['EndMinute'] = end_minute_var.get()
-    config['SETTINGS']['EndAMPM'] = end_am_pm_var.get()
-    config['SETTINGS']['Theme'] = theme_combobox.get()
+    config['GENERAL_SETTINGS']['StartHour'] = start_hour_var.get()
+    config['GENERAL_SETTINGS']['StartMinute'] = start_minute_var.get()
+    config['GENERAL_SETTINGS']['StartAMPM'] = start_am_pm_var.get()
+    config['GENERAL_SETTINGS']['EndHour'] = end_hour_var.get()
+    config['GENERAL_SETTINGS']['EndMinute'] = end_minute_var.get()
+    config['GENERAL_SETTINGS']['EndAMPM'] = end_am_pm_var.get()
+    config['GENERAL_SETTINGS']['Theme'] = theme_combobox.get()
 
     # Save the modified settings to the config file
     with open(config_file, 'w') as configfile:
@@ -294,8 +298,9 @@ def save_settings(show_popup=True):
 
     if not is_loop_thread_running():
         loop_thread.start()
-    root.withdraw()
-    show_tray_icon_popup()
+
+    root.withdraw() # Hide the root window
+    show_tray_icon_popup() # Show popup to notify app is in system tray
 
 # Check internet connectivity
 def check_internet_connection():
@@ -335,8 +340,8 @@ def compare_time():
 def load_settings():
     if os.path.isfile(config_file):
         config.read(config_file)
-        if 'SETTINGS' in config:
-            settings = config['SETTINGS']
+        if 'GENERAL_SETTINGS' in config:
+            settings = config['GENERAL_SETTINGS']
             start_hour_var.set(settings.get('StartHour', '06'))
             start_minute_var.set(settings.get('StartMinute', '00'))
             start_am_pm_var.set(settings.get('StartAMPM', 'AM'))
@@ -344,15 +349,22 @@ def load_settings():
             end_minute_var.set(settings.get('EndMinute', '00'))
             theme_combobox.set(settings.get('Theme', 'System'))
             print("Settings loaded")
-            if 'ShowPopup' in settings and settings.get('ShowPopup') == 'False':
+        else:
+            print("No 'GENERAL_SETTINGS' section found in the config file.")
+
+        if 'POPUP_SETTINGS' in config:
+            popup_settings = config['POPUP_SETTINGS']
+            if 'ShowPopup' in popup_settings and popup_settings.get('ShowPopup') == 'False':
                 # Don't show the popup if the setting is set to False
                 return
-            # Call the compare_time function to trigger the popup
-            compare_time()
         else:
-            print("No 'SETTINGS' section found in the config file.")
+            print("No 'POPUP_SETTINGS' section found in the config file.")
+
+        # Call the compare_time function to trigger the popup
+        compare_time()
     else:
-        print("Config file not found. Using default settings."); compare_time()
+        print("Config file not found. Using default settings.")
+        compare_time()
 
 # Check if 'appicon.ico' file exists
 if not os.path.exists("appicon.ico"):
@@ -547,11 +559,14 @@ root.protocol("WM_DELETE_WINDOW", on_closing)
 # Run the tray icon on a different thread
 tray_icon.run_detached()
 
-# Check if the config file exists
 if os.path.isfile(config_file):
-    if not is_loop_thread_running():
-        loop_thread.start()
-    root.withdraw()
+    config.read(config_file)
+    if 'GENERAL_SETTINGS' in config:
+        if not is_loop_thread_running():
+            loop_thread.start()
+        root.withdraw()
+else:
+    pass # Config file not found. Using default settings.
 
 # Run the main loop
 root.mainloop()
