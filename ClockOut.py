@@ -41,7 +41,7 @@ def check_registry_key():
 if os.path.isfile("addregkey.exe"):
     if not check_registry_key():
         print("The registry key does not exist, trying to add registry key...")
-        command = f"addregkey.exe {os.path.basename(__file__)}"
+        command = f"addregkey.exe {os.path.splitext(os.path.basename(__file__))[0]}.exe"
         os.popen(command)
     else:
         print("The registry key already exists.")
