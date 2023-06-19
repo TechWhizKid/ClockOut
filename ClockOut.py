@@ -14,7 +14,21 @@ import ctypes
 import winreg
 import time
 import pytz
+import sys
 import os
+
+# Specify the host and port for the socket
+host = 'localhost'
+port = 59632
+
+# Attempt to create a socket
+try:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind((host, port))
+except socket.error:
+    # Another instance of the app is already running
+    print("Another instance of the app is already running.")
+    sys.exit(1)
 
 # Check if app has registry key to run on startup
 def check_registry_key():
