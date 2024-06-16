@@ -1,7 +1,0 @@
-pystray
-pillow
-customtkinter
-configparser
-tzlocal
-ntplib
-pytz
